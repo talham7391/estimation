@@ -1,5 +1,6 @@
+package talham7391.estimation.gamesteps
+
 import talham7391.estimation.Card
-import talham7391.estimation.gamesteps.GameStep
 
 class InitialBidding(
     private val players: Collection<String>,
@@ -13,9 +14,9 @@ class InitialBidding(
             throw IllegalAccessError("Initial bidding process is over.")
         }
         if (bid < 0 || bid > 13) {
-            throw IllegalBid()
+            throw IllegalInitialBid()
         } else if (bid <= highestBid()) {
-            throw IllegalBid()
+            throw IllegalInitialBid()
         }
         bids[turnOf].bid = bid
         return gotoNextStep()
@@ -73,5 +74,5 @@ data class BiddingInfo(
     var hasPassed: Boolean
 )
 
-class IllegalBid : Exception("You must bid higher than the highest bid.")
+class IllegalInitialBid : Exception("You must bid higher than the highest bid.")
 class IllegalPass : Exception("The first player cannot pass.")

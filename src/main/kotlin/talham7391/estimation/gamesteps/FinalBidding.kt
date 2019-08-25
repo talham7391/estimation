@@ -15,11 +15,11 @@ class FinalBidding(
             throw IllegalAccessError("Initial bidding process is over.")
         }
         if (bid < 0 || bid > 13) {
-            throw IllegalBid()
+            throw IllegalFinalBid()
         } else if (firstBid == null) {
             firstBid = bid
         } else if (bid > firstBid!!) {
-            throw IllegalBid()
+            throw IllegalFinalBid()
         }
 
         bids[turnOf] = bid
@@ -48,4 +48,4 @@ class FinalBidding(
     override fun done() = finished
 }
 
-class IllegalBid : Exception("You must bid lower or the same as the highest bid.")
+class IllegalFinalBid : Exception("You must bid lower or the same as the highest bid.")

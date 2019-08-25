@@ -3,13 +3,15 @@
  */
 package talham7391.estimation
 
-class Estimation(players: Collection<Player>) {
-    val players = players.map { createPlayerInGame(it) }
-    val cardsOnTable = mutableListOf<Card>()
+import talham7391.estimation.gamesteps.FinalBidding
+import talham7391.estimation.gamesteps.GameStep
+import talham7391.estimation.gamesteps.InitialBidding
 
-    private var turnOf: Player
-    private val trick: Trick? = null
-    private var gameOver = false
+class Estimation(players: Collection<Player>) : ActionReceiver {
+    private val players = players.map { createPlayerInGame(it) }
+    private val cardsOnTable = mutableListOf<Card>()
+
+    private var currentStep: GameStep = InitialBidding(players.map { it.getId() }, 0)
 
     init {
         val deck = newDeck().toMutableList()
@@ -18,21 +20,55 @@ class Estimation(players: Collection<Player>) {
             val cards = deck.randomlyTake(deckSize / players.size)
             player.cardsInHand.addAll(cards)
         }
-        turnOf = this.players[0]
     }
 
+    fun getCardsOnTable(): Collection<Card> = cardsOnTable
 
+    fun startGame() {
+        players[0].player.doTurn(this)
+    }
+
+    override fun bid(bid: Int) {
+        currentStep = currentStep.bid(bid)
+        if (currentStep.done()) {
+            if (currentStep is InitialBidding) {
+                // go to final bidding
+            } else if (currentStep is FinalBidding) {
+                // start the first round
+            }
+        }
+        players[currentStep.turnOfIndex()].player.doTurn(this)
+    }
+
+    override fun pass() {
+        currentStep = currentStep.pass()
+        if (currentStep.done()) {
+            // go to final bidding
+        }
+        players[currentStep.turnOfIndex()].player.doTurn(this)
+    }
+
+    override fun playCard(card: Card) {
+        currentStep = currentStep.playCard(card)
+        if (currentStep.done()) {
+            // go to the next round
+        }
+        players[currentStep.turnOfIndex()].player.doTurn(this)
+    }
 }
 
 class GameOver : Exception("This game is over")
+
+data class PlayerDoesNotExistInGame(val playerId: String) : Exception("This player: $playerId, doesn't exist in this game.")
 
 data class NotPlayersTurn(val playerId: String) : Exception("Not $playerId's turn")
 
 data class PlayerInGame(
     val player: Player,
-    val cardsInHand: MutableCollection<Card>
+    val cardsInHand: MutableCollection<Card>,
+    val score: Int
 ) : Player by player
 
 fun createPlayerInGame(player: Player): PlayerInGame {
-    return PlayerInGame(player, mutableListOf<Card>())
+    return PlayerInGame(player, mutableListOf<Card>(), 0)
 }

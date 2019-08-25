@@ -99,4 +99,22 @@ class TestInitialBidding {
         assertEquals(2, ib.turnOfIndex())
         assert(ib.done())
     }
+
+    @Test fun testCannotBidTooHighOrTooLow() {
+        val players = listOf("1", "2", "3", "4")
+        var ib: GameStep = InitialBidding(players, 1)
+        assertFails { ib = ib.bid(-1) }
+        assertFails { ib = ib.bid(-5) }
+        ib = ib.bid(0)
+        assertFails { ib = ib.bid(14) }
+        assertFails { ib = ib.bid(15) }
+        ib = ib.bid(13)
+        assertFails { ib = ib.bid(13) }
+        ib = ib.pass()
+        assertFails { ib = ib.bid(0) }
+        ib = ib.pass()
+        assertFails { ib = ib.bid(-1) }
+        ib = ib.pass()
+        assert(ib.done())
+    }
 }

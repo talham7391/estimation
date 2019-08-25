@@ -12,7 +12,9 @@ class InitialBidding(
         if (finished) {
             throw IllegalAccessError("Initial bidding process is over.")
         }
-        if (bid <= highestBid()) {
+        if (bid < 0 || bid > 13) {
+            throw IllegalBid()
+        } else if (bid <= highestBid()) {
             throw IllegalBid()
         }
         bids[turnOf].bid = bid

@@ -1,6 +1,7 @@
 package talham7391.estimation.gamesteps
 
 import talham7391.estimation.Card
+import talham7391.estimation.Suit
 
 interface GameStep {
     fun bid(bid: Int): GameStep

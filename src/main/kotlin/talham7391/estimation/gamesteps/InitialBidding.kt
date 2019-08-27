@@ -3,11 +3,18 @@ package talham7391.estimation.gamesteps
 import talham7391.estimation.Card
 
 class InitialBidding(
-    private val players: Collection<String>,
+    val players: Collection<String>,
     private val turnOf: Int
 ) : GameStep {
     private var bids = (0 until players.size).map { BiddingInfo(-1, false) }
     private var finished = false
+
+    fun getWinningBid(): Int {
+        if (!done()) {
+            throw IllegalAccessError("Initial bidding process is ongoing.")
+        }
+        return bids.maxBy { it.bid }!!.bid
+    }
 
     override fun bid(bid: Int): GameStep {
         if (finished) {

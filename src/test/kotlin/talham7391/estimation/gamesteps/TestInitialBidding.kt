@@ -1,4 +1,5 @@
 import talham7391.estimation.gamesteps.GameStep
+import talham7391.estimation.gamesteps.InitialBidding
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -116,5 +117,27 @@ class TestInitialBidding {
         assertFails { ib = ib.bid(-1) }
         ib = ib.pass()
         assert(ib.done())
+    }
+
+    @Test fun testReturnsCorrentWinningBid() {
+        val players = listOf("1", "2", "3", "4")
+        var ib: GameStep = InitialBidding(players, 1)
+        ib = ib.bid(4)
+        ib = ib.bid(5)
+        ib = ib.pass()
+        ib = ib.pass()
+        ib = ib.bid(6)
+        ib = ib.pass()
+        assertEquals(6, (ib as InitialBidding).getWinningBid())
+    }
+
+    @Test fun testCannotReturnWinningBidWhenProcessIsNotOver() {
+        val players = listOf("1", "2", "3", "4")
+        var ib: GameStep = InitialBidding(players, 1)
+        ib = ib.bid(1)
+        ib = ib.bid(2)
+        ib = ib.bid(3)
+        ib = ib.bid(4)
+        assertFails { (ib as InitialBidding).getWinningBid() }
     }
 }

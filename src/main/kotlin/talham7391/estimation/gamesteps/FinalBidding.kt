@@ -1,14 +1,22 @@
 package talham7391.estimation.gamesteps
 
 import talham7391.estimation.Card
+import talham7391.estimation.Suit
 
 class FinalBidding(
-    private val players: Collection<String>,
+    val players: Collection<String>,
     private val turnOf: Int
 ) : GameStep {
     private var bids = arrayOfNulls<Int>(players.size)
     private var firstBid: Int? = null
     private var finished = false
+
+    fun getBids(): Collection<Int> {
+        if (!done()) {
+            throw IllegalAccessError("Final bidding process is ongoing.")
+        }
+        return bids.map { it!! }
+    }
 
     override fun bid(bid: Int): GameStep {
         if (finished) {

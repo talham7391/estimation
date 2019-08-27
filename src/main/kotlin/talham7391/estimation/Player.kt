@@ -1,13 +1,23 @@
 package talham7391.estimation
 
-interface Player {
-    fun getId(): String
-    fun doTurn(game: ActionReceiver)
-}
+class Player {
+    var score = 0
 
-interface ActionReceiver {
-    fun bid(bid: Int)
-    fun pass()
-    fun playCard(card: Card)
-}
+    lateinit var actions: GameActions
 
+    fun bid(bid: Int) {
+        actions.bid(this, bid)
+    }
+
+    fun pass() {
+        actions.pass(this)
+    }
+
+    fun declareTrump(suit: Suit) {
+        actions.declareTrump(this, suit)
+    }
+
+    fun playCard(card: Card) {
+        actions.playCard(this, card)
+    }
+}

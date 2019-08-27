@@ -6,69 +6,82 @@ package talham7391.estimation
 import talham7391.estimation.gamesteps.FinalBidding
 import talham7391.estimation.gamesteps.GameStep
 import talham7391.estimation.gamesteps.InitialBidding
+import talham7391.estimation.phases.InitialBiddingPhase
 
-class Estimation(players: Collection<Player>) : ActionReceiver {
-    private val players = players.map { createPlayerInGame(it) }
-    private val cardsOnTable = mutableListOf<Card>()
+class Estimation(
+    private val playerGroup: PlayerGroup
+) : GameActions {
 
-    private var currentStep: GameStep = InitialBidding(players.map { it.getId() }, 0)
+    private lateinit var initialBiddingPhase: InitialBiddingPhase
+
+    private val turnListeners = mutableListOf<TurnListener>()
 
     init {
-        val deck = newDeck().toMutableList()
-        val deckSize = deck.size
-        for (player in this.players) {
-            val cards = deck.randomlyTake(deckSize / players.size)
-            player.cardsInHand.addAll(cards)
+        playerGroup.actions = this
+    }
+
+    fun start() {
+        initialBiddingPhase = InitialBiddingPhase(playerGroup)
+        for (tl in turnListeners) {
+            tl.initialBidFor(initialBiddingPhase.getPlayerWithTurn())
         }
     }
 
-    fun getCardsOnTable(): Collection<Card> = cardsOnTable
-
-    fun startGame() {
-        players[0].player.doTurn(this)
+    fun addTurnListener(listener: TurnListener) {
+        turnListeners.add(listener)
     }
 
-    override fun bid(bid: Int) {
-        currentStep = currentStep.bid(bid)
-        if (currentStep.done()) {
-            if (currentStep is InitialBidding) {
-                // go to final bidding
-            } else if (currentStep is FinalBidding) {
-                // start the first round
-            }
-        }
-        players[currentStep.turnOfIndex()].player.doTurn(this)
+    fun initialBiddingHistory(): Collection<InitialBid> {
+        TODO()
     }
 
-    override fun pass() {
-        currentStep = currentStep.pass()
-        if (currentStep.done()) {
-            // go to final bidding
-        }
-        players[currentStep.turnOfIndex()].player.doTurn(this)
+    fun finalBiddingHistory(): Collection<FinalBid> {
+        TODO()
     }
 
-    override fun playCard(card: Card) {
-        currentStep = currentStep.playCard(card)
-        if (currentStep.done()) {
-            // go to the next round
-        }
-        players[currentStep.turnOfIndex()].player.doTurn(this)
+    fun cardsInCurrentTrick(): Collection<Card> {
+        TODO()
+    }
+
+    fun getTrumpSuit(): Suit {
+        TODO()
+    }
+
+    override fun bid(player: Player, bid: Int) {
+
+    }
+
+    override fun pass(player: Player) {
+
+    }
+
+    override fun declareTrump(player: Player, suit: Suit) {
+
+    }
+
+    override fun playCard(player: Player, card: Card) {
+
     }
 }
 
-class GameOver : Exception("This game is over")
+fun InitialBidding.transitionToFinalBidding() : GameStep {
+    var fb: GameStep = FinalBidding(players, turnOfIndex())
+    fb = fb.bid(getWinningBid())
+    return fb
+}
 
-data class PlayerDoesNotExistInGame(val playerId: String) : Exception("This player: $playerId, doesn't exist in this game.")
-
-data class NotPlayersTurn(val playerId: String) : Exception("Not $playerId's turn")
+//fun FinalBidding.transitionToFirstRound() : GameStep {
+//    val fr = Round(players, turnOfIndex())
+//}
 
 data class PlayerInGame(
-    val player: Player,
+    val player: String,
     val cardsInHand: MutableCollection<Card>,
     val score: Int
-) : Player by player
+)
 
-fun createPlayerInGame(player: Player): PlayerInGame {
-    return PlayerInGame(player, mutableListOf<Card>(), 0)
+fun createPlayerInGame(player: String): PlayerInGame {
+    return PlayerInGame(player, mutableListOf(), 0)
 }
+
+data class PlayingOutOfTurn(val player: String) : Exception("The following player is playing out of turn: $player")

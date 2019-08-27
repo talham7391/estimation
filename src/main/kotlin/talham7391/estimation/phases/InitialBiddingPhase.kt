@@ -5,12 +5,11 @@ import talham7391.estimation.*
 class InitialBiddingPhase(
     private val playerGroup: PlayerGroup,
     setGroupActions: Boolean = false
-) : Phase {
+) : BasePhase() {
 
     private var isReady = false
 
     private val bids = mutableListOf<InitialBid>()
-    private lateinit var firstBidder: Player
     private lateinit var turnOf: Player
 
     init {
@@ -20,26 +19,13 @@ class InitialBiddingPhase(
     }
 
     private fun init() {
-        firstBidder = playerGroup.players.maxBy { it.score }!!
-        turnOf = firstBidder
+        turnOf = playerGroup.players.maxBy { it.score }!!
     }
 
     private fun insureReady() {
         if (!isReady) {
             init()
             isReady = true
-        }
-    }
-
-    private fun insurePlayersTurn(player: Player) {
-        if (turnOf != player) {
-            throw PlayerOutOfTurn(player)
-        }
-    }
-
-    private fun insureOnGoing() {
-        if (isPhaseComplete()) {
-            throw PhaseComplete()
         }
     }
 
@@ -84,22 +70,12 @@ class InitialBiddingPhase(
         wrapUp()
     }
 
-    override fun declareTrump(player: Player, suit: Suit) {
-        throw IllegalAction(player, "DECLARE_TRUMP")
-    }
-
-    override fun playCard(player: Player, card: Card) {
-        throw IllegalAction(player, "PLAY_CARD")
-    }
-
     override fun getPlayerWithTurn() = turnOf
 
     override fun isPhaseComplete() = bids.count { it.passed } == 3
 
     fun getWinningBid(): InitialBid {
-        if (!isPhaseComplete()) {
-            throw PhaseNotComplete()
-        }
+        insureComplete()
         return bids.last { !it.passed }
     }
 }

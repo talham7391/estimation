@@ -2,7 +2,6 @@ import talham7391.estimation.Player
 import talham7391.estimation.PlayerGroup
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
 import kotlin.test.assertNotEquals
 
 class TestPlayerGroup {

@@ -26,5 +26,3 @@ class PlayerGroup(
         return players[(idx + 1) % players.size]
     }
 }
-
-class PlayerNotInGroup(player: Player) : Exception("Player $player was not in group.")

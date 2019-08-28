@@ -5,9 +5,6 @@ package talham7391.estimation
 
 import talham7391.estimation.gamedata.Bid
 import talham7391.estimation.gamedata.InitialBid
-import talham7391.estimation.gamesteps.FinalBidding
-import talham7391.estimation.gamesteps.GameStep
-import talham7391.estimation.gamesteps.InitialBidding
 import talham7391.estimation.phases.InitialBiddingPhase
 
 class Estimation(
@@ -64,12 +61,6 @@ class Estimation(
     override fun playCard(player: Player, card: Card) {
 
     }
-}
-
-fun InitialBidding.transitionToFinalBidding() : GameStep {
-    var fb: GameStep = FinalBidding(players, turnOfIndex())
-    fb = fb.bid(getWinningBid())
-    return fb
 }
 
 //fun FinalBidding.transitionToFirstRound() : GameStep {

@@ -1,7 +1,9 @@
-package talham7391.estimation
+package talham7391.estimation.gamedata
+
+import talham7391.estimation.Player
 
 data class InitialBid(
-    val player: Player,
-    val bid: Int,
+    override val player: Player,
+    override val bid: Int,
     val passed: Boolean
-)
+) : Bid

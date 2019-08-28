@@ -1,6 +1,8 @@
 package talham7391.estimation.phases
 
-import talham7391.estimation.*
+import talham7391.estimation.Player
+import talham7391.estimation.PlayerGroup
+import talham7391.estimation.gamedata.InitialBid
 
 class InitialBiddingPhase(
     private val playerGroup: PlayerGroup,

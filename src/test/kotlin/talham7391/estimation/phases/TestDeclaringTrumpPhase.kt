@@ -8,7 +8,7 @@ import kotlin.test.assertNotEquals
 
 class TestDeclaringTrumpPhase {
 
-    fun testPhaseWithPlayers(turnIdx:Int, testFunc: (Player, Player, Player, Player, DeclaringTrumpPhase) -> Unit) {
+    inline fun testPhaseWithPlayers(turnIdx:Int, testFunc: (Player, Player, Player, Player, DeclaringTrumpPhase) -> Unit) {
         val p1 = Player()
         val p2 = Player()
         val p3 = Player()

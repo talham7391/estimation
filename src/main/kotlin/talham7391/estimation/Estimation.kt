@@ -3,6 +3,8 @@
  */
 package talham7391.estimation
 
+import talham7391.estimation.gamedata.Bid
+import talham7391.estimation.gamedata.InitialBid
 import talham7391.estimation.gamesteps.FinalBidding
 import talham7391.estimation.gamesteps.GameStep
 import talham7391.estimation.gamesteps.InitialBidding
@@ -35,7 +37,7 @@ class Estimation(
         TODO()
     }
 
-    fun finalBiddingHistory(): Collection<FinalBid> {
+    fun finalBiddingHistory(): Collection<Bid> {
         TODO()
     }
 

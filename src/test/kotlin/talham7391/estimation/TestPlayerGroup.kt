@@ -18,6 +18,7 @@ class TestPlayerGroup {
         assertEquals(p3, g.playerAfter(p2))
         assertEquals(p4, g.playerAfter(p3))
         assertEquals(p1, g.playerAfter(p4))
+        assertEquals(p2, g.playerAfter(p1))
 
         assertNotEquals(p1, g.playerAfter(p1))
         assertNotEquals(p3, g.playerAfter(p1))

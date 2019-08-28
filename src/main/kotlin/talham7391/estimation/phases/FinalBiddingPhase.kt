@@ -1,16 +1,18 @@
 package talham7391.estimation.phases
 
-import talham7391.estimation.Card
 import talham7391.estimation.Player
 import talham7391.estimation.PlayerGroup
-import talham7391.estimation.Suit
+import talham7391.estimation.gamedata.Bid
+import talham7391.estimation.gamedata.NewBid
 
 class FinalBiddingPhase(
     private val playerGroup: PlayerGroup,
+    winningBid: Bid,
     setGroupActions: Boolean = false
-) : Phase {
+) : BasePhase() {
 
-    private lateinit var turnOf: Player
+    private var turnOf = playerGroup.playerAfter(winningBid.player)
+    private val bids = mutableListOf(winningBid)
 
     init {
         if (setGroupActions) {
@@ -19,26 +21,25 @@ class FinalBiddingPhase(
     }
 
     override fun bid(player: Player, bid: Int) {
-        TODO()
+        insureOnGoing()
+        insurePlayersTurn(player)
+
+        if (bid < 0 || bid > 13) {
+            throw IllegalAction(player, "BID")
+        } else if (bids[0].bid < bid) {
+            throw IllegalAction(player, "BID")
+        }
+
+        bids.add(NewBid(player, bid))
+        turnOf = playerGroup.playerAfter(player)
     }
 
-    override fun pass(player: Player) {
-        throw IllegalAction(player, "PASS")
-    }
+    override fun isPhaseComplete() = bids.size == 4
 
-    override fun declareTrump(player: Player, suit: Suit) {
-        throw IllegalAction(player, "DECLARE_TRUMP")
-    }
+    override fun getPlayerWithTurn() = turnOf
 
-    override fun playCard(player: Player, card: Card) {
-        throw IllegalAction(player, "PLAY_CARD")
-    }
-
-    override fun isPhaseComplete(): Boolean {
-        TODO()
-    }
-
-    override fun getPlayerWithTurn(): Player {
-        TODO()
+    fun getFinalBids(): List<Bid> {
+        insureComplete()
+        return bids
     }
 }

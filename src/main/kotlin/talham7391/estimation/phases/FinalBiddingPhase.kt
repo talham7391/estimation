@@ -38,8 +38,5 @@ class FinalBiddingPhase(
 
     override fun getPlayerWithTurn() = turnOf
 
-    fun getFinalBids(): List<Bid> {
-        insureComplete()
-        return bids
-    }
+    fun getFinalBids(): List<Bid> = bids
 }

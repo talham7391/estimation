@@ -80,4 +80,6 @@ class InitialBiddingPhase(
         insureComplete()
         return bids.last { !it.passed }
     }
+
+    fun getInitialBiddingHistory(): List<InitialBid> = bids
 }

@@ -61,15 +61,6 @@ class TestFinalBiddingPhase {
         assert(p.isPhaseComplete())
     }
 
-    @Test fun testCannotGetBidsBeforePhaseComplete() = testPhaseWithPlayers(5, 1) { p1, _, p3, p4, p ->
-        assertFails { p.getFinalBids() }
-        p3.bid(4)
-        p4.bid(2)
-        assertFails { p.getFinalBids() }
-        p1.bid(2)
-        p.getFinalBids()
-    }
-
     @Test fun testCannotBidOncePhaseComplete() = testPhaseWithPlayers(1, 0) { p1, p2, p3, p4, p ->
         p2.bid(1)
         p3.bid(1)

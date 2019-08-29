@@ -4,77 +4,98 @@
 package talham7391.estimation
 
 import talham7391.estimation.gamedata.Bid
-import talham7391.estimation.gamedata.InitialBid
+import talham7391.estimation.phases.DeclaringTrumpPhase
+import talham7391.estimation.phases.FinalBiddingPhase
 import talham7391.estimation.phases.InitialBiddingPhase
+import talham7391.estimation.phases.TrickTakingPhase
+
 
 class Estimation(
     private val playerGroup: PlayerGroup
 ) : GameActions {
 
-    private lateinit var initialBiddingPhase: InitialBiddingPhase
-
-    private val turnListeners = mutableListOf<TurnListener>()
+    private val initialBiddingPhase = InitialBiddingPhase(playerGroup)
+    private var declaringTrumpPhase: DeclaringTrumpPhase? = null
+    private var finalBiddingPhase: FinalBiddingPhase? = null
+    private var trickTakingPhase: TrickTakingPhase? = null
 
     init {
         playerGroup.actions = this
     }
 
-    fun start() {
-        initialBiddingPhase = InitialBiddingPhase(playerGroup)
-        for (tl in turnListeners) {
-            tl.initialBidFor(initialBiddingPhase.getPlayerWithTurn())
+    override fun bid(player: Player, bid: Int) {
+        if (!initialBiddingPhase.isPhaseComplete()) {
+            initialBiddingPhase.bid(player, bid)
+            tryMovingToDeclaringTrumpPhase()
+        } else {
+            if (finalBiddingPhase == null) {
+                throw NotFinalBiddingPhaseYet()
+            }
+            finalBiddingPhase!!.bid(player, bid)
+            tryMovingToTrickTakingPhase()
         }
     }
 
-    fun addTurnListener(listener: TurnListener) {
-        turnListeners.add(listener)
-    }
-
-    fun initialBiddingHistory(): Collection<InitialBid> {
-        TODO()
-    }
-
-    fun finalBiddingHistory(): Collection<Bid> {
-        TODO()
-    }
-
-    fun cardsInCurrentTrick(): Collection<Card> {
-        TODO()
-    }
-
-    fun getTrumpSuit(): Suit {
-        TODO()
-    }
-
-    override fun bid(player: Player, bid: Int) {
-
-    }
-
     override fun pass(player: Player) {
-
+        initialBiddingPhase.pass(player)
+        tryMovingToDeclaringTrumpPhase()
     }
 
     override fun declareTrump(player: Player, suit: Suit) {
-
+        if (declaringTrumpPhase == null) {
+            throw NotDeclaringTrumpPhaseYet()
+        }
+        declaringTrumpPhase!!.declareTrump(player, suit)
+        tryMovingToFinalBiddingPhase()
     }
 
     override fun playCard(player: Player, card: Card) {
+        if (trickTakingPhase == null) {
+            throw NotTrickTakingPhaseYet()
+        }
+        trickTakingPhase!!.playCard(player, card)
+        tryMovingToNextTrick()
+    }
 
+    private fun tryMovingToDeclaringTrumpPhase() {
+        if (initialBiddingPhase.isPhaseComplete()) {
+            declaringTrumpPhase = DeclaringTrumpPhase(playerGroup, initialBiddingPhase.getWinningBid().player)
+        }
+    }
+
+    private fun tryMovingToFinalBiddingPhase() {
+        if (declaringTrumpPhase!!.isPhaseComplete()) {
+            finalBiddingPhase = FinalBiddingPhase(playerGroup, initialBiddingPhase.getWinningBid())
+        }
+    }
+
+    private fun tryMovingToTrickTakingPhase() {
+        if (finalBiddingPhase!!.isPhaseComplete()) {
+            trickTakingPhase = TrickTakingPhase(
+                playerGroup,
+                initialBiddingPhase.getWinningBid().player,
+                declaringTrumpPhase!!.getTrumpSuit()
+            )
+        }
+    }
+
+    private fun tryMovingToNextTrick() {
+
+    }
+
+    fun initialBiddingHistory() = initialBiddingPhase.getInitialBiddingHistory()
+
+    fun getPlayerBids(): List<Bid> = finalBiddingPhase?.getFinalBids() ?: emptyList()
+
+    fun getTrumpSuit(): Suit {
+        if (declaringTrumpPhase == null) {
+            throw TrumpSuitNotAvailable()
+        }
+        return declaringTrumpPhase!!.getTrumpSuit()
     }
 }
 
-//fun FinalBidding.transitionToFirstRound() : GameStep {
-//    val fr = Round(players, turnOfIndex())
-//}
-
-data class PlayerInGame(
-    val player: String,
-    val cardsInHand: MutableCollection<Card>,
-    val score: Int
-)
-
-fun createPlayerInGame(player: String): PlayerInGame {
-    return PlayerInGame(player, mutableListOf(), 0)
-}
-
-data class PlayingOutOfTurn(val player: String) : Exception("The following player is playing out of turn: $player")
+class TrumpSuitNotAvailable : Exception()
+class NotDeclaringTrumpPhaseYet : Exception()
+class NotFinalBiddingPhaseYet : Exception()
+class NotTrickTakingPhaseYet : Exception()

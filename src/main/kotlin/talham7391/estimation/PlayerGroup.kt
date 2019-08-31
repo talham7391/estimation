@@ -5,12 +5,16 @@ class PlayerGroup(
     two: Player,
     three: Player,
     four: Player
-) : GameActions {
+) : GameActions, PlayerInfo {
+    lateinit var playerInfo: PlayerInfo
     lateinit var actions: GameActions
     val players = listOf(one, two, three, four)
 
     init {
-        players.forEach { it.actions = this }
+        players.forEach {
+            it.actions = this
+            it.playerInfo = this
+        }
     }
 
     override fun bid(player: Player, bid: Int) = actions.bid(player, bid)
@@ -20,6 +24,8 @@ class PlayerGroup(
     override fun declareTrump(player: Player, suit: Suit) = actions.declareTrump(player, suit)
 
     override fun playCard(player: Player, card: Card) = actions.playCard(player, card)
+
+    override fun getCardsInHand(player: Player) = playerInfo.getCardsInHand(player)
 
     fun playerAfter(player: Player): Player {
         val idx = players.indexOf(player)

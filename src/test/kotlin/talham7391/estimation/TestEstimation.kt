@@ -58,7 +58,7 @@ class TestEstimation {
             Pair(p3, 2)
         ), g.getPlayerBids().map { Pair(it.player, it.bid) })
 
-        p4.playCard(Card(Suit.CLUBS, Rank.TWO))
+        p4.playAnyCardInHand()
     }
 
     @Test fun testPlayerCannotPlayADifferentSuitIfTheyHaveLeadingSuit() {

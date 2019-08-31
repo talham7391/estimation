@@ -4,6 +4,7 @@
 package talham7391.estimation
 
 import talham7391.estimation.gamedata.Bid
+import talham7391.estimation.gamedata.getWinner
 import talham7391.estimation.phases.DeclaringTrumpPhase
 import talham7391.estimation.phases.FinalBiddingPhase
 import talham7391.estimation.phases.InitialBiddingPhase
@@ -12,15 +13,26 @@ import talham7391.estimation.phases.TrickTakingPhase
 
 class Estimation(
     private val playerGroup: PlayerGroup
-) : GameActions {
+) : GameActions, PlayerInfo {
 
     private val initialBiddingPhase = InitialBiddingPhase(playerGroup)
     private var declaringTrumpPhase: DeclaringTrumpPhase? = null
     private var finalBiddingPhase: FinalBiddingPhase? = null
     private var trickTakingPhase: TrickTakingPhase? = null
 
+    private var cardsInHand = mutableMapOf<Player, MutableList<Card>>()
+
     init {
-        playerGroup.actions = this
+        playerGroup.let {
+            it.actions = this
+            it.playerInfo = this
+        }
+
+        val deck = newDeck().toMutableList()
+        val numCards = deck.size
+        for (player in playerGroup.players) {
+            cardsInHand[player] = deck.randomlyTake(numCards / playerGroup.players.size).toMutableList()
+        }
     }
 
     override fun bid(player: Player, bid: Int) {
@@ -80,7 +92,18 @@ class Estimation(
     }
 
     private fun tryMovingToNextTrick() {
+        if (trickTakingPhase!!.isPhaseComplete()) {
+            val trick = trickTakingPhase!!.getTrick()
+            trickTakingPhase = TrickTakingPhase(
+                playerGroup,
+                trick.getWinner(),
+                trick.trumpSuit
+            )
+        }
+    }
 
+    override fun getCardsInHand(player: Player): List<Card> {
+        return cardsInHand[player] ?: throw PlayerNotInGame()
     }
 
     fun initialBiddingHistory() = initialBiddingPhase.getInitialBiddingHistory()
@@ -99,3 +122,4 @@ class TrumpSuitNotAvailable : Exception()
 class NotDeclaringTrumpPhaseYet : Exception()
 class NotFinalBiddingPhaseYet : Exception()
 class NotTrickTakingPhaseYet : Exception()
+class PlayerNotInGame : Exception()

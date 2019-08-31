@@ -30,7 +30,7 @@ data class Card(
     val rank: Rank
 )
 
-fun newDeck(): Collection<Card> {
+fun newDeck(): List<Card> {
     val deck = mutableListOf<Card>()
     for (suit in Suit.values()) {
         for (rank in Rank.values()) {
@@ -40,7 +40,7 @@ fun newDeck(): Collection<Card> {
     return deck
 }
 
-fun MutableList<Card>.randomlyTake(num: Int): Collection<Card> {
+fun MutableList<Card>.randomlyTake(num: Int): List<Card> {
     val cards = mutableListOf<Card>()
     repeat(num) {
         if (size > 0) {

@@ -91,4 +91,8 @@ class TestTrickTakingPhase {
         assert(p.isPhaseComplete())
         p.getTrick()
     }
+
+    @Test fun testReturnsTheCorrectPlays() {
+
+    }
 }

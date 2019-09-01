@@ -43,4 +43,6 @@ class TrickTakingPhase(
         insureComplete()
         return Trick(plays, trumpSuit)
     }
+
+    fun getPlays(): List<Play> = plays
 }

@@ -4,6 +4,7 @@
 package talham7391.estimation
 
 import talham7391.estimation.gamedata.Bid
+import talham7391.estimation.gamedata.Trick
 import talham7391.estimation.gamedata.getWinner
 import talham7391.estimation.phases.DeclaringTrumpPhase
 import talham7391.estimation.phases.FinalBiddingPhase
@@ -20,9 +21,11 @@ class Estimation(
     private var finalBiddingPhase: FinalBiddingPhase? = null
     private var trickTakingPhase: TrickTakingPhase? = null
 
-    private val listeners = mutableListOf<GameListener>()
+    private val turnListeners = mutableListOf<TurnListener>()
+    private val gameListeners = mutableListOf<GameListener>()
 
     private var cardsInHand = mutableMapOf<Player, MutableList<Card>>()
+    private var pastTricks = mutableListOf<Trick>()
 
     init {
         playerGroup.let {
@@ -39,21 +42,33 @@ class Estimation(
 
     override fun bid(player: Player, bid: Int) {
         if (!initialBiddingPhase.isPhaseComplete()) {
+
             initialBiddingPhase.bid(player, bid)
+            gameListeners.forEach { it.playerInitiallyBid(player, bid) }
+
             tryMovingToDeclaringTrumpPhase()
+
         } else {
+
             if (finalBiddingPhase == null) {
                 throw NotFinalBiddingPhaseYet()
             }
+
             finalBiddingPhase!!.bid(player, bid)
+            gameListeners.forEach { it.playerFinallyBid(player, bid) }
+
             tryMovingToTrickTakingPhase()
         }
+
         notifyPlayerOfTurn()
     }
 
     override fun pass(player: Player) {
         initialBiddingPhase.pass(player)
+        gameListeners.forEach { it.playerPassed(player) }
+
         tryMovingToDeclaringTrumpPhase()
+
         notifyPlayerOfTurn()
     }
 
@@ -61,8 +76,12 @@ class Estimation(
         if (declaringTrumpPhase == null) {
             throw NotDeclaringTrumpPhaseYet()
         }
+
         declaringTrumpPhase!!.declareTrump(player, suit)
+        gameListeners.forEach { it.playerDeclaredTrumpSuit(player, suit) }
+
         tryMovingToFinalBiddingPhase()
+
         notifyPlayerOfTurn()
     }
 
@@ -70,8 +89,12 @@ class Estimation(
         if (trickTakingPhase == null) {
             throw NotTrickTakingPhaseYet()
         }
+
         trickTakingPhase!!.playCard(player, card)
+        gameListeners.forEach { it.playersPlayCardTurn(player, card) }
+
         tryMovingToNextTrick()
+
         notifyPlayerOfTurn()
     }
 
@@ -100,6 +123,9 @@ class Estimation(
     private fun tryMovingToNextTrick() {
         if (trickTakingPhase!!.isPhaseComplete()) {
             val trick = trickTakingPhase!!.getTrick()
+            pastTricks.add(trick)
+            gameListeners.forEach { it.trickFinished(trick) }
+
             trickTakingPhase = TrickTakingPhase(
                 playerGroup,
                 trick.getWinner(),
@@ -110,13 +136,18 @@ class Estimation(
 
     private fun notifyPlayerOfTurn() {
         if (!initialBiddingPhase.isPhaseComplete()) {
-            listeners.forEach { it.onPlayersTurnToInitialBid(initialBiddingPhase.getPlayerWithTurn()) }
+            turnListeners.forEach { it.onPlayersTurnToInitialBid(initialBiddingPhase.getPlayerWithTurn()) }
         } else if (!declaringTrumpPhase!!.isPhaseComplete()) {
-            listeners.forEach { it.onPlayersTurnToDeclareTrump(declaringTrumpPhase!!.getPlayerWithTurn()) }
+            turnListeners.forEach { it.onPlayersTurnToDeclareTrump(declaringTrumpPhase!!.getPlayerWithTurn()) }
         } else if (!finalBiddingPhase!!.isPhaseComplete()) {
-            listeners.forEach { it.onPlayersTurnToFinalBid(finalBiddingPhase!!.getPlayerWithTurn()) }
+            turnListeners.forEach { it.onPlayersTurnToFinalBid(finalBiddingPhase!!.getPlayerWithTurn()) }
         } else if (!trickTakingPhase!!.isPhaseComplete()) {
-            listeners.forEach { it.onPlayersTurnToPlayCard(trickTakingPhase!!.getPlayerWithTurn()) }
+            turnListeners.forEach {
+                it.onPlayersTurnToPlayCard(
+                    trickTakingPhase!!.getPlayerWithTurn(),
+                    trickTakingPhase!!.getPlays()
+                )
+            }
         }
     }
 
@@ -124,12 +155,20 @@ class Estimation(
         return cardsInHand[player] ?: throw PlayerNotInGame()
     }
 
+    override fun getTurnIndex(player: Player): Int {
+        return playerGroup.players.indexOf(player)
+    }
+
     fun start() {
         notifyPlayerOfTurn()
     }
 
-    fun addListener(listener: GameListener) {
-        listeners.add(listener)
+    fun addTurnListener(listener: TurnListener) {
+        turnListeners.add(listener)
+    }
+
+    fun addGameListener(listener: GameListener) {
+        gameListeners.add(listener)
     }
 
     fun initialBiddingHistory() = initialBiddingPhase.getInitialBiddingHistory()
@@ -143,8 +182,11 @@ class Estimation(
         return declaringTrumpPhase!!.getTrumpSuit()
     }
 
+    fun getPastTricks(): List<Trick> = pastTricks
+
     fun cleanup() {
-        listeners.clear()
+        turnListeners.clear()
+        gameListeners.clear()
     }
 }
 

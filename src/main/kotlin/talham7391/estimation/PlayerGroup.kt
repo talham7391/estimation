@@ -27,6 +27,8 @@ class PlayerGroup(
 
     override fun getCardsInHand(player: Player) = playerInfo.getCardsInHand(player)
 
+    override fun getTurnIndex(player: Player) = playerInfo.getTurnIndex(player)
+
     fun playerAfter(player: Player): Player {
         val idx = players.indexOf(player)
         return players[(idx + 1) % players.size]

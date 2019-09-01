@@ -6,7 +6,7 @@ class Player {
     var score = 0
 
     lateinit var actions: GameActions
-    lateinit var playerInfo: PlayerInfo
+    lateinit var playerInfoProvider: PlayerInfoProvider
 
     fun bid(bid: Int) {
         actions.bid(this, bid)
@@ -24,9 +24,9 @@ class Player {
         actions.playCard(this, card)
     }
 
-    fun getCardsInHand() = playerInfo.getCardsInHand(this)
+    fun getCardsInHand() = playerInfoProvider.getCardsInHand(this)
 
-    fun getTurnIndex() = playerInfo.getTurnIndex(this)
+    fun getTurnIndex() = playerInfoProvider.getTurnIndex(this)
 }
 
 fun Player.playAnyCardInHand(): Boolean {

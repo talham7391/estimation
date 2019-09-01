@@ -13,7 +13,7 @@ class TestTurnListener {
     val p2 = Player()
     val p3 = Player()
     val p4 = Player()
-    val game = Estimation(PlayerGroup(p1, p2, p3, p4)).apply {
+    val game = Estimation(p1, p2, p3, p4).apply {
         addTurnListener(i)
     }
 

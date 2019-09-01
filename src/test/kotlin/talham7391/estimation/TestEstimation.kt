@@ -6,6 +6,14 @@ class TestEstimation {
 
     }
 
+    @Test fun testPlayerCannotPlayACardThatHasAlreadyBeenPlayed() {
+
+    }
+
+    @Test fun testPlayerDoesNotHaveAccessToACardOnceTheyHavePlayedIt() {
+
+    }
+
     @Test fun testGameScoresAreRememberedForNextGame() {
 
     }

@@ -4,11 +4,6 @@ import talham7391.estimation.gamedata.Play
 import kotlin.random.Random
 
 class GameDriver(
-    private val p1: Player,
-    private val p2: Player,
-    private val p3: Player,
-    private val p4: Player,
-    private val group: PlayerGroup,
     private val game: Estimation
 ) : TurnListener {
 

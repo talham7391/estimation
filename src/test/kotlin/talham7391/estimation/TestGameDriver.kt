@@ -12,11 +12,8 @@ class TestGameDriver {
         val p2 = Player()
         val p3 = Player()
         val p4 = Player()
-        val group = PlayerGroup(p1, p2, p3, p4)
-        val game = Estimation(group)
-        val driver = GameDriver(p1, p2, p3, p4, group, game)
-        val basicGameLogger = BasicGameLogger()
-        game.addGameListener(basicGameLogger)
+        val game = Estimation(p1, p2, p3, p4)
+        val driver = GameDriver(game)
 
         assertEquals(emptyList(), game.initialBiddingHistory())
         driver.doInitialBidding()

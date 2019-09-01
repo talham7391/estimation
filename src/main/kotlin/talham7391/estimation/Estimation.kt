@@ -13,9 +13,13 @@ import talham7391.estimation.phases.TrickTakingPhase
 
 
 class Estimation(
-    private val playerGroup: PlayerGroup
-) : GameActions, PlayerInfo {
+    p1: Player,
+    p2: Player,
+    p3: Player,
+    p4: Player
+) : GameActions, PlayerInfoProvider {
 
+    private val playerGroup = PlayerGroup(p1, p2, p3, p4)
     private val initialBiddingPhase = InitialBiddingPhase(playerGroup)
     private var declaringTrumpPhase: DeclaringTrumpPhase? = null
     private var finalBiddingPhase: FinalBiddingPhase? = null
@@ -30,7 +34,7 @@ class Estimation(
     init {
         playerGroup.let {
             it.actions = this
-            it.playerInfo = this
+            it.playerInfoProvider = this
         }
 
         val deck = newDeck().toMutableList()

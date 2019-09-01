@@ -1,6 +1,6 @@
 package talham7391.estimation
 
-interface PlayerInfo {
+interface PlayerInfoProvider {
     fun getCardsInHand(player: Player): List<Card>
     fun getTurnIndex(player: Player): Int
 }

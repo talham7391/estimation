@@ -20,6 +20,8 @@ class Estimation(
     private var finalBiddingPhase: FinalBiddingPhase? = null
     private var trickTakingPhase: TrickTakingPhase? = null
 
+    private val listeners = mutableListOf<GameListener>()
+
     private var cardsInHand = mutableMapOf<Player, MutableList<Card>>()
 
     init {
@@ -46,11 +48,13 @@ class Estimation(
             finalBiddingPhase!!.bid(player, bid)
             tryMovingToTrickTakingPhase()
         }
+        notifyPlayerOfTurn()
     }
 
     override fun pass(player: Player) {
         initialBiddingPhase.pass(player)
         tryMovingToDeclaringTrumpPhase()
+        notifyPlayerOfTurn()
     }
 
     override fun declareTrump(player: Player, suit: Suit) {
@@ -59,6 +63,7 @@ class Estimation(
         }
         declaringTrumpPhase!!.declareTrump(player, suit)
         tryMovingToFinalBiddingPhase()
+        notifyPlayerOfTurn()
     }
 
     override fun playCard(player: Player, card: Card) {
@@ -67,6 +72,7 @@ class Estimation(
         }
         trickTakingPhase!!.playCard(player, card)
         tryMovingToNextTrick()
+        notifyPlayerOfTurn()
     }
 
     private fun tryMovingToDeclaringTrumpPhase() {
@@ -102,8 +108,28 @@ class Estimation(
         }
     }
 
+    private fun notifyPlayerOfTurn() {
+        if (!initialBiddingPhase.isPhaseComplete()) {
+            listeners.forEach { it.onPlayersTurnToInitialBid(initialBiddingPhase.getPlayerWithTurn()) }
+        } else if (!declaringTrumpPhase!!.isPhaseComplete()) {
+            listeners.forEach { it.onPlayersTurnToDeclareTrump(declaringTrumpPhase!!.getPlayerWithTurn()) }
+        } else if (!finalBiddingPhase!!.isPhaseComplete()) {
+            listeners.forEach { it.onPlayersTurnToFinalBid(finalBiddingPhase!!.getPlayerWithTurn()) }
+        } else if (!trickTakingPhase!!.isPhaseComplete()) {
+            listeners.forEach { it.onPlayersTurnToPlayCard(trickTakingPhase!!.getPlayerWithTurn()) }
+        }
+    }
+
     override fun getCardsInHand(player: Player): List<Card> {
         return cardsInHand[player] ?: throw PlayerNotInGame()
+    }
+
+    fun start() {
+        notifyPlayerOfTurn()
+    }
+
+    fun addListener(listener: GameListener) {
+        listeners.add(listener)
     }
 
     fun initialBiddingHistory() = initialBiddingPhase.getInitialBiddingHistory()
@@ -115,6 +141,10 @@ class Estimation(
             throw TrumpSuitNotAvailable()
         }
         return declaringTrumpPhase!!.getTrumpSuit()
+    }
+
+    fun cleanup() {
+        listeners.clear()
     }
 }
 

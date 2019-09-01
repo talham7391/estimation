@@ -9,10 +9,8 @@ class InitialBiddingPhase(
     setGroupActions: Boolean = false
 ) : BasePhase() {
 
-    private var isReady = false
-
     private val bids = mutableListOf<InitialBid>()
-    private lateinit var turnOf: Player
+    private var turnOf = playerGroup.players.maxBy { it.score }!!
 
     init {
         if (setGroupActions) {
@@ -20,19 +18,7 @@ class InitialBiddingPhase(
         }
     }
 
-    private fun init() {
-        turnOf = playerGroup.players.maxBy { it.score }!!
-    }
-
-    private fun insureReady() {
-        if (!isReady) {
-            init()
-            isReady = true
-        }
-    }
-
     private fun bookKeep(player: Player) {
-        insureReady()
         insurePlayersTurn(player)
         insureOnGoing()
     }

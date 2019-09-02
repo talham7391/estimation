@@ -10,6 +10,7 @@ import talham7391.estimation.phases.DeclaringTrumpPhase
 import talham7391.estimation.phases.FinalBiddingPhase
 import talham7391.estimation.phases.InitialBiddingPhase
 import talham7391.estimation.phases.TrickTakingPhase
+import kotlin.math.abs
 
 
 class Estimation(
@@ -49,7 +50,25 @@ class Estimation(
     }
 
     private fun computeScores() {
+        val tricks = pastTricks.takeLast(13)
+        val bids = getPlayerBids()
 
+        val target = mutableMapOf<Player, Int>()
+        bids.forEach { target[it.player] = it.bid }
+
+        val actual = mutableMapOf<Player, Int>()
+        tricks.forEach {
+            val p = it.getWinner()
+            actual[p] = (actual[p] ?: 0) + 1
+        }
+
+        playerGroup.players.forEach {
+            var scoreForGame = abs((target[it] ?: 0) - (actual[it] ?: 0)) * -1
+            if (scoreForGame == 0) {
+                scoreForGame = target[it] ?: 0
+            }
+            scores[it] = (scores[it] ?: 0) + scoreForGame
+        }
     }
 
     private fun reset() {
@@ -59,7 +78,6 @@ class Estimation(
         trickTakingPhase = null
 
         cardsInHand.clear()
-        pastTricks.clear()
 
         val deck = newDeck().toMutableList()
         val numCards = deck.size
@@ -179,7 +197,7 @@ class Estimation(
             pastTricks.add(trick)
             gameListeners.forEach { it.trickFinished(trick) }
 
-            if (pastTricks.size == 13) {
+            if (pastTricks.size % 13 == 0) {
                 computeScores()
                 reset()
             } else {

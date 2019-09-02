@@ -2,6 +2,7 @@ import talham7391.estimation.*
 import talham7391.estimation.gamedata.Play
 import talham7391.estimation.gamedata.Trick
 import talham7391.estimation.gamedata.getWinner
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -99,7 +100,8 @@ class TestEstimation {
 
         val tricks = mutableListOf<Trick>()
 
-        repeat(12) {
+        repeat(13) {
+            val trumpSuit = game.getTrumpSuit()
             val p1 = game.getPlayerWithTurn()
             val c1 = p1.playAnyCardInHand()!!
             val play1 = Play(p1, c1)
@@ -110,13 +112,13 @@ class TestEstimation {
                 Play(p, c)
             }
 
-            tricks.add(Trick(listOf(play1, plays[0], plays[1], plays[2]), game.getTrumpSuit()))
+            tricks.add(Trick(listOf(play1, plays[0], plays[1], plays[2]), trumpSuit))
         }
 
         assertEquals(tricks, game.getPastTricks())
     }
 
-    @Test fun testGameEndsAfter13Tricks() = withGame { game, driver ->
+    @Test fun testGameEndsAfter13Tricks() = withGame { _, driver ->
         repeat(10) {
             driver.doInitialBidding()
             driver.doDeclaringTrump()
@@ -127,8 +129,54 @@ class TestEstimation {
         }
     }
 
-    @Test fun testPlayerScoresAreComputedProperly() {
+    @Test fun testPlayerScoresAreComputedProperly() = withGame { game, driver ->
+        val scores = mutableMapOf<Player, Int>()
 
+        var init = false
+
+        repeat(10) {
+            driver.doInitialBidding()
+            driver.doDeclaringTrump()
+            driver.doFinalBidding()
+
+            val bids = game.getPlayerBids()
+            val playerBids = mutableMapOf<Player, Int>()
+
+            bids.forEach {
+                playerBids[it.player] = it.bid
+            }
+
+            if (!init) {
+                bids.forEach { scores[it.player] = 0 }
+                init = true
+            }
+
+            repeat(13) {
+                driver.doTrick()
+            }
+
+            val gameWins = mutableMapOf<Player, Int>()
+
+            val tricks = game.getPastTricks().takeLast(13)
+            tricks.forEach {
+                val p = it.getWinner()
+                gameWins[p] = (gameWins[p] ?: 0) + 1
+            }
+
+            val diffs = mutableMapOf<Player, Int>()
+            bids.map { it.player }.forEach {
+                diffs[it] = abs(playerBids[it]!! - (gameWins[it] ?: 0)) * -1
+                if (diffs[it]!! == 0) {
+                    diffs[it] = gameWins[it]!!
+                }
+
+                scores[it] = (scores[it] ?: 0) + diffs[it]!!
+
+                assertEquals(scores[it]!!, it.getScore())
+            }
+        }
+
+        // add a manual test
     }
 
     @Test fun testGameScoresAreRememberedForNextGame() {

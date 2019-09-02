@@ -2,9 +2,7 @@ package talham7391.estimation
 
 import kotlin.random.Random
 
-class Player {
-    var score = 0
-
+open class Player {
     private lateinit var actions: GameActions
     private lateinit var playerInfoProvider: PlayerInfoProvider
 
@@ -35,6 +33,8 @@ class Player {
     fun getCardsInHand() = playerInfoProvider.getCardsInHand(this)
 
     fun getTurnIndex() = playerInfoProvider.getTurnIndex(this)
+
+    fun getScore() = playerInfoProvider.getScore(this)
 }
 
 fun Player.playAnyCardInHand(): Card? {

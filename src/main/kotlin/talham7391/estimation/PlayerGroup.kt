@@ -4,7 +4,8 @@ class PlayerGroup(
     one: Player,
     two: Player,
     three: Player,
-    four: Player
+    four: Player,
+    setAsPlayerInfoProvider: Boolean = true
 ) : GameActions, PlayerInfoProvider {
 
     private lateinit var playerInfoProvider: PlayerInfoProvider
@@ -15,7 +16,10 @@ class PlayerGroup(
     init {
         players.forEach {
             it.setGameActions(this)
-            it.setPlayerInfoProvider(this)
+
+            if (setAsPlayerInfoProvider) {
+                it.setPlayerInfoProvider(this)
+            }
         }
     }
 
@@ -38,6 +42,8 @@ class PlayerGroup(
     override fun getCardsInHand(player: Player) = playerInfoProvider.getCardsInHand(player)
 
     override fun getTurnIndex(player: Player) = playerInfoProvider.getTurnIndex(player)
+
+    override fun getScore(player: Player) = playerInfoProvider.getScore(player)
 
     fun playerAfter(player: Player): Player {
         val idx = players.indexOf(player)

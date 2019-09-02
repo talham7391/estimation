@@ -20,33 +20,51 @@ class Estimation(
 ) : GameActions, PlayerInfoProvider {
 
     private val playerGroup = PlayerGroup(p1, p2, p3, p4)
-    private val initialBiddingPhase = InitialBiddingPhase(playerGroup)
+    private val scores = mutableMapOf<Player, Int>()
+
+    private lateinit var initialBiddingPhase: InitialBiddingPhase
     private var declaringTrumpPhase: DeclaringTrumpPhase? = null
     private var finalBiddingPhase: FinalBiddingPhase? = null
     private var trickTakingPhase: TrickTakingPhase? = null
 
-    private val turnListeners = mutableListOf<TurnListener>()
-    private val gameListeners = mutableListOf<GameListener>()
-
     private var cardsInHand = mutableMapOf<Player, MutableList<Card>>()
     private var pastTricks = mutableListOf<Trick>()
 
+    private val turnListeners = mutableListOf<TurnListener>()
+    private val gameListeners = mutableListOf<GameListener>()
+
     init {
+        playerGroup.players.forEach { scores[it] = 0 }
         playerGroup.let {
             it.setGameActions(this)
             it.setPlayerInfoProvider(this)
         }
-
-        val deck = newDeck().toMutableList()
-        val numCards = deck.size
-        for (player in playerGroup.players) {
-            cardsInHand[player] = deck.randomlyTake(numCards / playerGroup.players.size).toMutableList()
-        }
+        reset()
     }
 
     private fun insurePlayerInGame(player: Player) {
         if (!playerGroup.players.contains(player)) {
             throw PlayerNotInGame()
+        }
+    }
+
+    private fun computeScores() {
+
+    }
+
+    private fun reset() {
+        initialBiddingPhase = InitialBiddingPhase(playerGroup)
+        declaringTrumpPhase = null
+        finalBiddingPhase = null
+        trickTakingPhase = null
+
+        cardsInHand.clear()
+        pastTricks.clear()
+
+        val deck = newDeck().toMutableList()
+        val numCards = deck.size
+        for (player in playerGroup.players) {
+            cardsInHand[player] = deck.randomlyTake(numCards / playerGroup.players.size).toMutableList()
         }
     }
 
@@ -161,11 +179,16 @@ class Estimation(
             pastTricks.add(trick)
             gameListeners.forEach { it.trickFinished(trick) }
 
-            trickTakingPhase = TrickTakingPhase(
-                playerGroup,
-                trick.getWinner(),
-                trick.trumpSuit
-            )
+            if (pastTricks.size == 13) {
+                computeScores()
+                reset()
+            } else {
+                trickTakingPhase = TrickTakingPhase(
+                    playerGroup,
+                    trick.getWinner(),
+                    trick.trumpSuit
+                )
+            }
         }
     }
 
@@ -176,6 +199,10 @@ class Estimation(
     override fun getTurnIndex(player: Player): Int {
         insurePlayerInGame(player)
         return playerGroup.players.indexOf(player)
+    }
+
+    override fun getScore(player: Player): Int {
+        return scores[player] ?: throw PlayerNotInGame()
     }
 
     fun getPlayerWithTurn(): Player {

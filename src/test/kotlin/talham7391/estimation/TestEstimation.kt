@@ -76,7 +76,7 @@ class TestEstimation {
     @Test fun testPlayerWhoWonTheTrickStartsTheNextTrick() = withGame { game, driver ->
         driver.forwardToTrickTaking()
 
-        repeat(13) {
+        repeat(12) {
             val p1 = game.getPlayerWithTurn()
             val c1 = p1.playAnyCardInHand()!!
 
@@ -99,7 +99,7 @@ class TestEstimation {
 
         val tricks = mutableListOf<Trick>()
 
-        repeat(13) {
+        repeat(12) {
             val p1 = game.getPlayerWithTurn()
             val c1 = p1.playAnyCardInHand()!!
             val play1 = Play(p1, c1)
@@ -116,19 +116,26 @@ class TestEstimation {
         assertEquals(tricks, game.getPastTricks())
     }
 
+    @Test fun testGameEndsAfter13Tricks() = withGame { game, driver ->
+        repeat(10) {
+            driver.doInitialBidding()
+            driver.doDeclaringTrump()
+            driver.doFinalBidding()
+            repeat(13) {
+                driver.doTrick()
+            }
+        }
+    }
+
+    @Test fun testPlayerScoresAreComputedProperly() {
+
+    }
+
     @Test fun testGameScoresAreRememberedForNextGame() {
 
     }
 
     @Test fun testPlayerWithHighestScoreBidsFirst() {
-
-    }
-
-    @Test fun testGameEndsAfter13Tricks() {
-
-    }
-
-    @Test fun testPlayerScoresAreComputedProperly() {
 
     }
 

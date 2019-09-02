@@ -10,7 +10,7 @@ class InitialBiddingPhase(
 ) : BasePhase() {
 
     private val bids = mutableListOf<InitialBid>()
-    private var turnOf = playerGroup.players.maxBy { it.score }!!
+    private var turnOf = playerGroup.players.maxBy { it.getScore() }!!
 
     init {
         if (setGroupActions) {

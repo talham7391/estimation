@@ -5,8 +5,16 @@ import kotlin.random.Random
 class Player {
     var score = 0
 
-    lateinit var actions: GameActions
-    lateinit var playerInfoProvider: PlayerInfoProvider
+    private lateinit var actions: GameActions
+    private lateinit var playerInfoProvider: PlayerInfoProvider
+
+    fun setGameActions(a: GameActions) {
+        actions = a
+    }
+
+    fun setPlayerInfoProvider(p: PlayerInfoProvider) {
+        playerInfoProvider = p
+    }
 
     fun bid(bid: Int) {
         actions.bid(this, bid)
@@ -47,4 +55,11 @@ fun Player.playAnyCardInHandOfSuit(suit: Suit): Boolean {
         playCard(cardsInHand[Random.nextInt(cardsInHand.size)])
         true
     }
+}
+
+fun Player.playAnyCardInHandOfSuitIfPossible(suit: Suit): Boolean {
+    if (playAnyCardInHandOfSuit(suit)) {
+        return true
+    }
+    return playAnyCardInHand()
 }

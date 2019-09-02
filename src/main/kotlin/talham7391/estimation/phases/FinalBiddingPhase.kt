@@ -16,7 +16,7 @@ class FinalBiddingPhase(
 
     init {
         if (setGroupActions) {
-            playerGroup.actions = this
+            playerGroup.setGameActions(this)
         }
     }
 

@@ -6,15 +6,25 @@ class PlayerGroup(
     three: Player,
     four: Player
 ) : GameActions, PlayerInfoProvider {
-    lateinit var playerInfoProvider: PlayerInfoProvider
-    lateinit var actions: GameActions
+
+    private lateinit var playerInfoProvider: PlayerInfoProvider
+    private lateinit var actions: GameActions
+
     val players = listOf(one, two, three, four)
 
     init {
         players.forEach {
-            it.actions = this
-            it.playerInfoProvider = this
+            it.setGameActions(this)
+            it.setPlayerInfoProvider(this)
         }
+    }
+
+    fun setGameActions(a: GameActions) {
+        actions = a
+    }
+
+    fun setPlayerInfoProvider(p: PlayerInfoProvider) {
+        playerInfoProvider = p
     }
 
     override fun bid(player: Player, bid: Int) = actions.bid(player, bid)

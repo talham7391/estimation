@@ -33,8 +33,8 @@ class Estimation(
 
     init {
         playerGroup.let {
-            it.actions = this
-            it.playerInfoProvider = this
+            it.setGameActions(this)
+            it.setPlayerInfoProvider(this)
         }
 
         val deck = newDeck().toMutableList()
@@ -94,7 +94,24 @@ class Estimation(
             throw NotTrickTakingPhaseYet()
         }
 
+        // must play a card in their hand
+
+        val hasCardInHand = cardsInHand[player]?.contains(card) ?: false
+        if (!hasCardInHand) {
+            throw MustPlayCardInHand()
+        }
+
+        // must play the leading suit
+
+        val leadingSuit = trickTakingPhase!!.getPlays().firstOrNull()?.card?.suit
+        if (leadingSuit != null && card.suit != leadingSuit) {
+            if (cardsInHand[player]?.find { it.suit == leadingSuit } != null) {
+                throw MustPlayLeadingSuit()
+            }
+        }
+
         trickTakingPhase!!.playCard(player, card)
+        cardsInHand[player]?.remove(card)
         gameListeners.forEach { it.playersPlayCardTurn(player, card) }
 
         tryMovingToNextTrick()
@@ -138,7 +155,29 @@ class Estimation(
         }
     }
 
-    private fun notifyPlayerOfTurn() {
+    override fun getCardsInHand(player: Player): List<Card> {
+        return cardsInHand[player] ?: throw PlayerNotInGame()
+    }
+
+    override fun getTurnIndex(player: Player): Int {
+        return playerGroup.players.indexOf(player)
+    }
+
+    fun getPlayerWithTurn(): Player {
+        return if (!initialBiddingPhase.isPhaseComplete()) {
+            initialBiddingPhase.getPlayerWithTurn()
+        } else if (!declaringTrumpPhase!!.isPhaseComplete()) {
+            declaringTrumpPhase!!.getPlayerWithTurn()
+        } else if (!finalBiddingPhase!!.isPhaseComplete()) {
+            finalBiddingPhase!!.getPlayerWithTurn()
+        } else if (!trickTakingPhase!!.isPhaseComplete()) {
+            trickTakingPhase!!.getPlayerWithTurn()
+        } else {
+            throw Exception()
+        }
+    }
+
+    fun notifyPlayerOfTurn() {
         if (!initialBiddingPhase.isPhaseComplete()) {
             turnListeners.forEach { it.onPlayersTurnToInitialBid(initialBiddingPhase.getPlayerWithTurn()) }
         } else if (!declaringTrumpPhase!!.isPhaseComplete()) {
@@ -153,18 +192,6 @@ class Estimation(
                 )
             }
         }
-    }
-
-    override fun getCardsInHand(player: Player): List<Card> {
-        return cardsInHand[player] ?: throw PlayerNotInGame()
-    }
-
-    override fun getTurnIndex(player: Player): Int {
-        return playerGroup.players.indexOf(player)
-    }
-
-    fun start() {
-        notifyPlayerOfTurn()
     }
 
     fun addTurnListener(listener: TurnListener) {
@@ -199,3 +226,5 @@ class NotDeclaringTrumpPhaseYet : Exception()
 class NotFinalBiddingPhaseYet : Exception()
 class NotTrickTakingPhaseYet : Exception()
 class PlayerNotInGame : Exception()
+class MustPlayLeadingSuit : Exception()
+class MustPlayCardInHand : Exception()

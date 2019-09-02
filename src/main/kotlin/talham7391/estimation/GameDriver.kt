@@ -7,52 +7,61 @@ class GameDriver(
     private val game: Estimation
 ) : TurnListener {
 
-    private var winningPlayer: Player? = null
-    private var playerToStartFinalBidding: Player? = null
-    private var playerToStartTrick: Player? = null
+    private var isEnabled = false
 
     init {
         game.addTurnListener(this)
     }
 
     override fun onPlayersTurnToInitialBid(player: Player) {
-        player.doInitialBidTurn()
+        if (isEnabled) {
+            player.doInitialBidTurn()
+        }
     }
 
     override fun onPlayersTurnToDeclareTrump(player: Player) {
-        winningPlayer = player
+        disable()
     }
 
     override fun onPlayersTurnToFinalBid(player: Player) {
-        if (playerToStartFinalBidding == null) {
-            playerToStartFinalBidding = player
-        } else {
+        if (isEnabled) {
             player.doFinalBidding()
         }
     }
 
     override fun onPlayersTurnToPlayCard(player: Player, trickSoFar: List<Play>) {
         if (trickSoFar.isEmpty()) {
-            playerToStartTrick = player
-        } else {
+            disable()
+        } else if (isEnabled && trickSoFar.isNotEmpty()) {
             player.doTrickTurn(trickSoFar)
         }
     }
 
     fun doInitialBidding() {
-        game.start()
+        enable()
+        game.notifyPlayerOfTurn()
     }
 
     fun doDeclaringTrump() {
-        winningPlayer?.doDeclaringBid()
+        game.getPlayerWithTurn().doDeclaringBid()
     }
 
     fun doFinalBidding() {
-        playerToStartFinalBidding?.doFinalBidding()
+        enable()
+        game.getPlayerWithTurn().doFinalBidding()
     }
 
     fun doTrick() {
-        playerToStartTrick?.doTrickTurn(emptyList())
+        enable()
+        game.getPlayerWithTurn().doTrickTurn(emptyList())
+    }
+
+    private fun disable() {
+        isEnabled = false
+    }
+
+    private fun enable() {
+        isEnabled = true
     }
 
     private fun Player.doInitialBidTurn() {
@@ -87,4 +96,10 @@ class GameDriver(
             }
         }
     }
+}
+
+fun GameDriver.forwardToTrickTaking() {
+    doInitialBidding()
+    doDeclaringTrump()
+    doFinalBidding()
 }

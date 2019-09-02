@@ -1,4 +1,7 @@
 import talham7391.estimation.*
+import talham7391.estimation.gamedata.Play
+import talham7391.estimation.gamedata.Trick
+import talham7391.estimation.gamedata.getWinner
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -70,15 +73,54 @@ class TestEstimation {
         assertEquals(12, secondPlayer.getCardsInHand().size)
     }
 
+    @Test fun testPlayerWhoWonTheTrickStartsTheNextTrick() = withGame { game, driver ->
+        driver.forwardToTrickTaking()
+
+        repeat(13) {
+            val p1 = game.getPlayerWithTurn()
+            val c1 = p1.playAnyCardInHand()!!
+
+            val p2 = game.getPlayerWithTurn()
+            val c2 = p2.playAnyCardInHandOfSuitIfPossible(c1.suit)!!
+
+            val p3 = game.getPlayerWithTurn()
+            val c3 = p3.playAnyCardInHandOfSuitIfPossible(c1.suit)!!
+
+            val p4 = game.getPlayerWithTurn()
+            val c4 = p4.playAnyCardInHandOfSuitIfPossible(c1.suit)!!
+
+            val trick = Trick(listOf(Play(p1, c1), Play(p2, c2), Play(p3, c3), Play(p4, c4)), game.getTrumpSuit())
+            assertEquals(trick.getWinner(), game.getPlayerWithTurn())
+        }
+    }
+
+    @Test fun testReturnsTheCorrectPastTricks() = withGame { game, driver ->
+        driver.forwardToTrickTaking()
+
+        val tricks = mutableListOf<Trick>()
+
+        repeat(13) {
+            val p1 = game.getPlayerWithTurn()
+            val c1 = p1.playAnyCardInHand()!!
+            val play1 = Play(p1, c1)
+
+            val plays = (0 until 3).map {
+                val p = game.getPlayerWithTurn()
+                val c = p.playAnyCardInHandOfSuitIfPossible(c1.suit)!!
+                Play(p, c)
+            }
+
+            tricks.add(Trick(listOf(play1, plays[0], plays[1], plays[2]), game.getTrumpSuit()))
+        }
+
+        assertEquals(tricks, game.getPastTricks())
+    }
+
     @Test fun testGameScoresAreRememberedForNextGame() {
 
     }
 
     @Test fun testPlayerWithHighestScoreBidsFirst() {
-
-    }
-
-    @Test fun testPlayerWhoWonTheTrickStartsTheNextTrick() {
 
     }
 
@@ -91,10 +133,6 @@ class TestEstimation {
     }
 
     @Test fun testIllegalOperations() {
-
-    }
-
-    @Test fun testReturnsTheCorrectPastTricks() {
 
     }
 }

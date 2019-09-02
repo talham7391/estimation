@@ -37,29 +37,32 @@ class Player {
     fun getTurnIndex() = playerInfoProvider.getTurnIndex(this)
 }
 
-fun Player.playAnyCardInHand(): Boolean {
+fun Player.playAnyCardInHand(): Card? {
     val cardsInHand = getCardsInHand()
     return if (cardsInHand.isEmpty()) {
-        false
+        null
     } else {
-        playCard(cardsInHand[Random.nextInt(cardsInHand.size)])
-        true
+        val card = cardsInHand[Random.nextInt(cardsInHand.size)]
+        playCard(card)
+        card
     }
 }
 
-fun Player.playAnyCardInHandOfSuit(suit: Suit): Boolean {
+fun Player.playAnyCardInHandOfSuit(suit: Suit): Card? {
     val cardsInHand = getCardsInHand().filter { it.suit == suit }
     return if (cardsInHand.isEmpty()) {
-        false
+        null
     } else {
-        playCard(cardsInHand[Random.nextInt(cardsInHand.size)])
-        true
+        val card = cardsInHand[Random.nextInt(cardsInHand.size)]
+        playCard(card)
+        card
     }
 }
 
-fun Player.playAnyCardInHandOfSuitIfPossible(suit: Suit): Boolean {
-    if (playAnyCardInHandOfSuit(suit)) {
-        return true
+fun Player.playAnyCardInHandOfSuitIfPossible(suit: Suit): Card? {
+    var card = playAnyCardInHandOfSuit(suit)
+    if (card == null) {
+        card = playAnyCardInHand()
     }
-    return playAnyCardInHand()
+    return card
 }

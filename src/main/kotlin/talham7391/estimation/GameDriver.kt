@@ -91,9 +91,7 @@ class GameDriver(
             playAnyCardInHand()
         } else {
             val leadingSuit = trickSoFar[0].card.suit
-            if (!playAnyCardInHandOfSuit(leadingSuit)) {
-                playAnyCardInHand()
-            }
+            playAnyCardInHandOfSuitIfPossible(leadingSuit)
         }
     }
 }

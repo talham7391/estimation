@@ -44,7 +44,15 @@ class Estimation(
         }
     }
 
+    private fun insurePlayerInGame(player: Player) {
+        if (!playerGroup.players.contains(player)) {
+            throw PlayerNotInGame()
+        }
+    }
+
     override fun bid(player: Player, bid: Int) {
+        insurePlayerInGame(player)
+
         if (!initialBiddingPhase.isPhaseComplete()) {
 
             initialBiddingPhase.bid(player, bid)
@@ -68,6 +76,8 @@ class Estimation(
     }
 
     override fun pass(player: Player) {
+        insurePlayerInGame(player)
+
         initialBiddingPhase.pass(player)
         gameListeners.forEach { it.playerPassed(player) }
 
@@ -77,6 +87,8 @@ class Estimation(
     }
 
     override fun declareTrump(player: Player, suit: Suit) {
+        insurePlayerInGame(player)
+
         if (declaringTrumpPhase == null) {
             throw NotDeclaringTrumpPhaseYet()
         }
@@ -90,6 +102,8 @@ class Estimation(
     }
 
     override fun playCard(player: Player, card: Card) {
+        insurePlayerInGame(player)
+
         if (trickTakingPhase == null) {
             throw NotTrickTakingPhaseYet()
         }
@@ -160,6 +174,7 @@ class Estimation(
     }
 
     override fun getTurnIndex(player: Player): Int {
+        insurePlayerInGame(player)
         return playerGroup.players.indexOf(player)
     }
 

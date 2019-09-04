@@ -2,6 +2,21 @@
 
 Estimation a trick taking card game meant to be played with 4 players. This library was developed to facilitate gameplay between players on a server.
 
+## Table of Contents
+
+1. [Game Rules](#game-rules)
+2. [Usage](#usage)
+3. [Reference](#reference)
+ 1. [BasicGameLogger](#basic-game-logger)
+ 2. [Card](#card)
+ 3. [Estimation](#estimation)
+ 4. [GameDriver](#game-driver)
+ 5. [Interface GameListener](#interface-game-listener)
+ 6. [Player](#player)
+ 7. [PlayerGroup](#player-group)
+ 8. [Interface TurnListener](#interface-turn-listener)
+
+<a name="game-rules"></a>
 ## Game Rules
 
 ### Setup
@@ -40,6 +55,7 @@ If a player estimates they will win 0 rounds and wins 0 rounds by game end, they
 
 Points are cumulated as games are played. Players determine when they want to stop playing. Player with the highest score after x number of games wins.
 
+<a name="usage"></a>
 ## Usage
 
 **Setup**
@@ -90,8 +106,10 @@ p4.playCard(Rank.FIVE of Suit.HEARTS)
 // after 13 rounds like this the game ends and players can start bidding again
 ```
 
+<a name="referenec"></a>
 ## Reference
 
+<a name="basic-game-logger"></a>
 ### BasicGameLogger
 Useful in logging game progress.
 
@@ -108,6 +126,7 @@ Player 1 has bid 4.
 Player 2 has passed.
 ```
 
+<a name="card"></a>
 ### Card
 
 - `fun newDeck() : List<Card>` - Returns a list of 52 unique cards.
@@ -116,6 +135,7 @@ Player 2 has passed.
 
 - `infix fun Rank.of(suit: Suit)` - Convenience function to write `Rank.THREE of Suit.SPADES` instead of `Card(Rank.THREE, Suit.SPADES)`.
 
+<a name="estimation"></a>
 ### Estimation
 
 - `val playerGroup: PlayerGroup` - `PlayerGroup` created for this game.
@@ -154,6 +174,7 @@ Player 2 has passed.
 
 - `fun cleanup()` - should be called when deleting the game object.
 
+<a name="game-driver"></a>
 ### GameDriver
 Used to play the game for players. This is useful for testing.
 
@@ -178,6 +199,7 @@ repeat(13) { driver.doTrick() }
 // game over, scores are updated
 ```
 
+<a name="interface-game-listener"></a>
 ### Interface GameListener
 
 - `fun playerInitiallyBid(player: Player, bid: Int)` - called when a player has bid during the first round of bidding.
@@ -194,6 +216,7 @@ repeat(13) { driver.doTrick() }
 
 `BaseGameListener` implements stubs for the methods mentioned above. You can inherit from `BaseGameListener` to and only override the methods you need.
 
+<a name="player"></a>
 ### Player
 
 - `fun bid(bid: Int)` - helper function to use instead of `game.bid(player, 5)`
@@ -216,6 +239,7 @@ repeat(13) { driver.doTrick() }
 
 - `fun Player.playAnyCardInHandOfSuitIfPossible(suit: Suit): Card?` - if the player doesn't have the required suit they will play any card. Useful for testing. Returns the card that was played.
 
+<a name="player-group"></a>
 ### PlayerGroup
 
 - `val players: List<Player>` - the players that are a part of this group
@@ -224,6 +248,7 @@ repeat(13) { driver.doTrick() }
 
 The rest of the methods on this class are useless to the user. User should use the same methods from the `Player` class or the `Estimation` class instead.
 
+<a name="interface-turn-listener"></a>
 ### Interface TurnListener
 
 - `fun onPlayersTurnToInitialBid(player: Player)` - called when it is a player's turn to bid during the first round of bidding.

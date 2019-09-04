@@ -7,14 +7,14 @@ Estimation a trick taking card game meant to be played with 4 players. This libr
 1. [Game Rules](#game-rules)
 2. [Usage](#usage)
 3. [Reference](#reference)
- 1. [BasicGameLogger](#basic-game-logger)
- 2. [Card](#card)
- 3. [Estimation](#estimation)
- 4. [GameDriver](#game-driver)
- 5. [Interface GameListener](#interface-game-listener)
- 6. [Player](#player)
- 7. [PlayerGroup](#player-group)
- 8. [Interface TurnListener](#interface-turn-listener)
+	1. [BasicGameLogger](#basic-game-logger)
+	2. [Card](#card)
+	3. [Estimation](#estimation-class)
+	4. [GameDriver](#game-driver)
+	5. [Interface GameListener](#interface-game-listener)
+ 	6. [Player](#player)
+	7. [PlayerGroup](#player-group)
+	8. [Interface TurnListener](#interface-turn-listener)
 
 <a name="game-rules"></a>
 ## Game Rules
@@ -135,7 +135,7 @@ Player 2 has passed.
 
 - `infix fun Rank.of(suit: Suit)` - Convenience function to write `Rank.THREE of Suit.SPADES` instead of `Card(Rank.THREE, Suit.SPADES)`.
 
-<a name="estimation"></a>
+<a name="estimation-class"></a>
 ### Estimation
 
 - `val playerGroup: PlayerGroup` - `PlayerGroup` created for this game.

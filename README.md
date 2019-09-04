@@ -1,6 +1,6 @@
 # estimation
 
-Estimation a trick taking card game meant to be played with 4 players. This library was developed to facilitate gameplay between players on a server.
+Estimation is a trick taking card game meant to be played with 4 players. This library was developed to facilitate gameplay between players on a server.
 
 ## Table of Contents
 

@@ -1,16 +1,18 @@
 package talham7391.estimation
 
 import talham7391.estimation.gamedata.Play
+import talham7391.estimation.gamedata.Trick
 import kotlin.random.Random
 
 class GameDriver(
     private val game: Estimation
-) : TurnListener {
+) : TurnListener, BaseGameListener() {
 
     private var isEnabled = false
 
     init {
         game.addTurnListener(this)
+        game.addGameListener(this)
     }
 
     override fun onPlayersTurnToInitialBid(player: Player) {
@@ -37,6 +39,10 @@ class GameDriver(
         }
     }
 
+    override fun trickFinished(trick: Trick) {
+        disable()
+    }
+
     fun doInitialBidding() {
         enable()
         game.notifyPlayerOfTurn()
@@ -56,12 +62,12 @@ class GameDriver(
         game.getPlayerWithTurn().doTrickTurn(emptyList())
     }
 
-    private fun disable() {
-        isEnabled = false
-    }
-
     private fun enable() {
         isEnabled = true
+    }
+
+    private fun disable() {
+        isEnabled = false
     }
 
     private fun Player.doInitialBidTurn() {

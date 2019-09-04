@@ -6,6 +6,7 @@ import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
+import kotlin.test.assertNotEquals
 
 class TestEstimation {
 
@@ -129,7 +130,219 @@ class TestEstimation {
         }
     }
 
-    @Test fun testPlayerScoresAreComputedProperly() = withGame { game, driver ->
+    @Test fun testPlayerScoresAreComputedProperly() = withGame { game, _ ->
+        val p1 = game.getPlayerWithTurn()
+        val p2 = game.playerGroup.playerAfter(p1)
+        val p3 = game.playerGroup.playerAfter(p2)
+        val p4 = game.playerGroup.playerAfter(p3)
+
+        val bids = mutableMapOf<Player, Int>()
+        bids[p1] = 5
+        bids[p2] = 4
+        bids[p3] = 1
+        bids[p4] = 0
+
+        p1.bid(bids[p1]!!)
+        p2.pass()
+        p3.pass()
+        p4.pass()
+
+        p1.declareTrump(Suit.DIAMONDS)
+
+        p2.bid(bids[p2]!!)
+        p3.bid(bids[p3]!!)
+        p4.bid(bids[p4]!!)
+
+        val cards1 = listOf(
+            Rank.ACE of Suit.DIAMONDS,
+            Rank.KING of Suit.DIAMONDS,
+            Rank.JACK of Suit.DIAMONDS,
+            Rank.NINE of Suit.DIAMONDS,
+            Rank.TWO of Suit.DIAMONDS,
+
+            Rank.ACE of Suit.CLUBS,
+            Rank.NINE of Suit.CLUBS,
+            Rank.EIGHT of Suit.CLUBS,
+
+            Rank.ACE of Suit.HEARTS,
+            Rank.SEVEN of Suit.HEARTS,
+            Rank.SIX of Suit.HEARTS,
+
+            Rank.SIX of Suit.SPADES,
+            Rank.FIVE of Suit.SPADES
+        )
+        game.setCardsInHand(p1, cards1)
+
+        val cards2 = listOf(
+            Rank.QUEEN of Suit.DIAMONDS,
+            Rank.EIGHT of Suit.DIAMONDS,
+
+            Rank.JACK of Suit.CLUBS,
+            Rank.SIX of Suit.CLUBS,
+
+            Rank.KING of Suit.HEARTS,
+            Rank.QUEEN of Suit.HEARTS,
+            Rank.JACK of Suit.HEARTS,
+            Rank.FOUR of Suit.HEARTS,
+            Rank.THREE of Suit.HEARTS,
+
+            Rank.ACE of Suit.SPADES,
+            Rank.KING of Suit.SPADES,
+            Rank.FOUR of Suit.SPADES,
+            Rank.TWO of Suit.SPADES
+        )
+        game.setCardsInHand(p2, cards2)
+
+        val cards3 = listOf(
+            Rank.TEN of Suit.DIAMONDS,
+            Rank.FOUR of Suit.DIAMONDS,
+            Rank.THREE of Suit.DIAMONDS,
+
+            Rank.KING of Suit.CLUBS,
+            Rank.QUEEN of Suit.CLUBS,
+            Rank.SEVEN of Suit.CLUBS,
+            Rank.FIVE of Suit.CLUBS,
+            Rank.FOUR of Suit.CLUBS,
+
+            Rank.TEN of Suit.HEARTS,
+            Rank.FIVE of Suit.HEARTS,
+
+            Rank.QUEEN of Suit.SPADES,
+            Rank.JACK of Suit.SPADES,
+            Rank.THREE of Suit.SPADES
+        )
+        game.setCardsInHand(p3, cards3)
+
+        val cards4 = listOf(
+            Rank.SEVEN of Suit.DIAMONDS,
+            Rank.SIX of Suit.DIAMONDS,
+            Rank.FIVE of Suit.DIAMONDS,
+
+            Rank.TEN of Suit.CLUBS,
+            Rank.THREE of Suit.CLUBS,
+            Rank.TWO of Suit.CLUBS,
+
+            Rank.NINE of Suit.HEARTS,
+            Rank.EIGHT of Suit.HEARTS,
+            Rank.TWO of Suit.HEARTS,
+
+            Rank.TEN of Suit.SPADES,
+            Rank.NINE of Suit.SPADES,
+            Rank.EIGHT of Suit.SPADES,
+            Rank.SEVEN of Suit.SPADES
+        )
+        game.setCardsInHand(p4, cards4)
+
+        val deck = cards1 + cards2 + cards3 + cards4
+        assertEquals(52, deck.size)
+        for ((i, c1) in deck.withIndex()) {
+            for ((j, c2) in deck.withIndex()) {
+                if (i != j) {
+                    assertNotEquals(c1, c2)
+                }
+            }
+        }
+
+        val wins = mutableMapOf<Player, Int>()
+
+        p1.playCard(Rank.ACE of Suit.CLUBS)
+        p2.playCard(Rank.JACK of Suit.CLUBS)
+        p3.playCard(Rank.FOUR of Suit.CLUBS)
+        p4.playCard(Rank.TWO of Suit.CLUBS)
+
+        p1.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p1.playCard(Rank.ACE of Suit.HEARTS)
+        p2.playCard(Rank.THREE of Suit.HEARTS)
+        p3.playCard(Rank.FIVE of Suit.HEARTS)
+        p4.playCard(Rank.TWO of Suit.HEARTS)
+
+        p1.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p1.playCard(Rank.SIX of Suit.SPADES)
+        p2.playCard(Rank.KING of Suit.SPADES)
+        p3.playCard(Rank.THREE of Suit.SPADES)
+        p4.playCard(Rank.SEVEN of Suit.SPADES)
+
+        p2.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p2.playCard(Rank.QUEEN of Suit.DIAMONDS)
+        p3.playCard(Rank.THREE of Suit.DIAMONDS)
+        p4.playCard(Rank.FIVE of Suit.DIAMONDS)
+        p1.playCard(Rank.TWO of Suit.DIAMONDS)
+
+        p2.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p2.playCard(Rank.SIX of Suit.CLUBS)
+        p3.playCard(Rank.KING of Suit.CLUBS)
+        p4.playCard(Rank.THREE of Suit.CLUBS)
+        p1.playCard(Rank.NINE of Suit.CLUBS)
+
+        p3.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p3.playCard(Rank.QUEEN of Suit.CLUBS)
+        p4.playCard(Rank.TEN of Suit.CLUBS)
+        p1.playCard(Rank.EIGHT of Suit.CLUBS)
+        p2.playCard(Rank.EIGHT of Suit.DIAMONDS)
+
+        p2.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p2.playCard(Rank.ACE of Suit.SPADES)
+        p3.playCard(Rank.JACK of Suit.SPADES)
+        p4.playCard(Rank.TEN of Suit.SPADES)
+        p1.playCard(Rank.FIVE of Suit.SPADES)
+
+        p2.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p2.playCard(Rank.KING of Suit.HEARTS)
+        p3.playCard(Rank.TEN of Suit.HEARTS)
+        p4.playCard(Rank.EIGHT of Suit.HEARTS)
+        p1.playCard(Rank.SIX of Suit.HEARTS)
+
+        p2.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p2.playCard(Rank.QUEEN of Suit.HEARTS)
+        p3.playCard(Rank.FOUR of Suit.DIAMONDS)
+        p4.playCard(Rank.NINE of Suit.HEARTS)
+        p1.playCard(Rank.SEVEN of Suit.HEARTS)
+
+        p3.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p3.playCard(Rank.QUEEN of Suit.SPADES)
+        p4.playCard(Rank.EIGHT of Suit.SPADES)
+        p1.playCard(Rank.NINE of Suit.DIAMONDS)
+        p2.playCard(Rank.TWO of Suit.SPADES)
+
+        p1.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p1.playCard(Rank.ACE of Suit.DIAMONDS)
+        p2.playCard(Rank.FOUR of Suit.SPADES)
+        p3.playCard(Rank.TEN of Suit.DIAMONDS)
+        p4.playCard(Rank.SIX of Suit.DIAMONDS)
+
+        p1.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p1.playCard(Rank.KING of Suit.DIAMONDS)
+        p2.playCard(Rank.FOUR of Suit.HEARTS)
+        p3.playCard(Rank.SEVEN of Suit.CLUBS)
+        p4.playCard(Rank.SEVEN of Suit.DIAMONDS)
+
+        p1.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p1.playCard(Rank.JACK of Suit.DIAMONDS)
+        p2.playCard(Rank.JACK of Suit.HEARTS)
+        p3.playCard(Rank.FIVE of Suit.CLUBS)
+        p4.playCard(Rank.NINE of Suit.SPADES)
+
+        p1.let { wins[it] = (wins[it] ?: 0) + 1 }
+
+        p1.let { assertEquals(Utils.computePlayerScore(bids[it]!!, wins[it] ?: 0), it.getScore()) }
+        p2.let { assertEquals(Utils.computePlayerScore(bids[it]!!, wins[it] ?: 0), it.getScore()) }
+        p3.let { assertEquals(Utils.computePlayerScore(bids[it]!!, wins[it] ?: 0), it.getScore()) }
+        p4.let { assertEquals(Utils.computePlayerScore(bids[it]!!, wins[it] ?: 0), it.getScore()) }
+    }
+
+    @Test fun testGameScoresAreRememberedForNextGame() = withGame { game, driver ->
         val scores = mutableMapOf<Player, Int>()
 
         var init = false
@@ -167,7 +380,7 @@ class TestEstimation {
             bids.map { it.player }.forEach {
                 diffs[it] = abs(playerBids[it]!! - (gameWins[it] ?: 0)) * -1
                 if (diffs[it]!! == 0) {
-                    diffs[it] = gameWins[it]!!
+                    diffs[it] = (gameWins[it] ?: 13)
                 }
 
                 scores[it] = (scores[it] ?: 0) + diffs[it]!!
@@ -175,16 +388,19 @@ class TestEstimation {
                 assertEquals(scores[it]!!, it.getScore())
             }
         }
-
-        // add a manual test
     }
 
-    @Test fun testGameScoresAreRememberedForNextGame() {
+    @Test fun testPlayerWithHighestScoreBidsFirst() = withGame { game, driver ->
+        driver.forwardToTrickTaking()
+        repeat(13) { driver.doTrick() }
 
-    }
+        repeat(10) {
+            val p = game.playerGroup.players.maxBy { it.getScore() }!!
+            assertEquals(p, game.getPlayerWithTurn())
 
-    @Test fun testPlayerWithHighestScoreBidsFirst() {
-
+            driver.forwardToTrickTaking()
+            repeat(13) { driver.doTrick() }
+        }
     }
 
     @Test fun testIllegalOperations() {

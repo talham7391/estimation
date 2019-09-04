@@ -11,3 +11,18 @@ interface GameListener {
 
     fun trickFinished(trick: Trick)
 }
+
+abstract class BaseGameListener : GameListener {
+
+    override fun playerDeclaredTrumpSuit(player: Player, trumpSuit: Suit) {}
+
+    override fun playerFinallyBid(player: Player, bid: Int) {}
+
+    override fun playerInitiallyBid(player: Player, bid: Int) {}
+
+    override fun playerPassed(player: Player) {}
+
+    override fun playersPlayCardTurn(player: Player, card: Card) {}
+
+    override fun trickFinished(trick: Trick) {}
+}

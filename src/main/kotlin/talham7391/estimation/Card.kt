@@ -51,3 +51,5 @@ fun MutableList<Card>.randomlyTake(num: Int): List<Card> {
     }
     return cards
 }
+
+infix fun Rank.of(suit: Suit) = Card(suit, this)

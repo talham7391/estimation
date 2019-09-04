@@ -20,7 +20,7 @@ class Estimation(
     p4: Player
 ) : GameActions, PlayerInfoProvider {
 
-    private val playerGroup = PlayerGroup(p1, p2, p3, p4)
+    val playerGroup = PlayerGroup(p1, p2, p3, p4)
     private val scores = mutableMapOf<Player, Int>()
 
     private lateinit var initialBiddingPhase: InitialBiddingPhase
@@ -43,6 +43,11 @@ class Estimation(
         reset()
     }
 
+    fun setCardsInHand(player: Player, cards: List<Card>) {
+        insurePlayerInGame(player)
+        cardsInHand[player] = cards.toMutableList()
+    }
+
     private fun insurePlayerInGame(player: Player) {
         if (!playerGroup.players.contains(player)) {
             throw PlayerNotInGame()
@@ -63,10 +68,7 @@ class Estimation(
         }
 
         playerGroup.players.forEach {
-            var scoreForGame = abs((target[it] ?: 0) - (actual[it] ?: 0)) * -1
-            if (scoreForGame == 0) {
-                scoreForGame = target[it] ?: 0
-            }
+            val scoreForGame = Utils.computePlayerScore(target[it] ?: 0, actual[it] ?: 0)
             scores[it] = (scores[it] ?: 0) + scoreForGame
         }
     }
@@ -193,6 +195,7 @@ class Estimation(
 
     private fun tryMovingToNextTrick() {
         if (trickTakingPhase!!.isPhaseComplete()) {
+
             val trick = trickTakingPhase!!.getTrick()
             pastTricks.add(trick)
             gameListeners.forEach { it.trickFinished(trick) }

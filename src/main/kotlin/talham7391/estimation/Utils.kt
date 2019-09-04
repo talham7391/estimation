@@ -2,7 +2,7 @@ package talham7391.estimation
 
 import kotlin.math.abs
 
-object Utils {
+internal object Utils {
 
     fun computePlayerScore(target: Int, actual: Int): Int {
         var score = abs(target - actual) * -1

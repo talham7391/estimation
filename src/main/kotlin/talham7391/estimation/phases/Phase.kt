@@ -5,7 +5,7 @@ import talham7391.estimation.GameActions
 import talham7391.estimation.Player
 import talham7391.estimation.Suit
 
-interface Phase : GameActions {
+internal interface Phase : GameActions {
     fun getPlayerWithTurn(): Player
     fun isPhaseComplete(): Boolean
 }

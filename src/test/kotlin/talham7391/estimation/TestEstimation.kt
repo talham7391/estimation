@@ -405,14 +405,15 @@ class TestEstimation {
 
     @Test fun testIllegalOperations() = withGame { game, driver ->
         game.getPlayerWithTurn().let {
-            assertFails { it.playCard(Rank.FOUR of Suit.SPADES) }
+            assertFails { it.playAnyCardInHand() }
             assertFails { it.declareTrump(Suit.DIAMONDS) }
             assertFails { it.pass() }
             it.bid(5)
         }
 
         game.getPlayerWithTurn().let {
-            assertFails { it.playCard(Rank.TWO of Suit.SPADES) }
+            assertFails { game.getTrumpSuit() }
+            assertFails { it.playAnyCardInHand() }
             assertFails { it.declareTrump(Suit.DIAMONDS) }
             it.pass()
         }
@@ -423,14 +424,15 @@ class TestEstimation {
         game.getPlayerWithTurn().let {
             assertFails { it.pass() }
             assertFails { it.bid(6) }
-            assertFails { it.playCard(Rank.ACE of Suit.SPADES) }
+            assertFails { game.getTrumpSuit() }
+            assertFails { it.playAnyCardInHand() }
             it.declareTrump(Suit.DIAMONDS)
         }
 
         game.getPlayerWithTurn().let {
             assertFails { it.declareTrump(Suit.SPADES) }
             assertFails { it.pass() }
-            assertFails { it.playCard(Rank.NINE of Suit.HEARTS) }
+            assertFails { it.playAnyCardInHandOfSuitIfPossible(game.getTrumpSuit()) }
             it.bid(4)
         }
 
@@ -443,7 +445,7 @@ class TestEstimation {
             assertFails { it.pass() }
             assertFails { it.bid(4) }
             assertFails { it.declareTrump(Suit.HEARTS) }
-            it.playCard(Rank.SEVEN of Suit.DIAMONDS)
+            it.playAnyCardInHandOfSuitIfPossible(game.getTrumpSuit())
         }
     }
 }

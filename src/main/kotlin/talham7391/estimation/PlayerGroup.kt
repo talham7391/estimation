@@ -23,11 +23,11 @@ class PlayerGroup(
         }
     }
 
-    fun setGameActions(a: GameActions) {
+    internal fun setGameActions(a: GameActions) {
         actions = a
     }
 
-    fun setPlayerInfoProvider(p: PlayerInfoProvider) {
+    internal fun setPlayerInfoProvider(p: PlayerInfoProvider) {
         playerInfoProvider = p
     }
 

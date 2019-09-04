@@ -39,3 +39,53 @@ Once all 13 rounds are over, players check how many rounds they won, and determi
 If a player estimates they will win 0 rounds and wins 0 rounds by game end, they receive 13 points.
 
 Points are cumulated as games are played. Players determine when they want to stop playing. Player with the highest score after x number of games wins.
+
+## Usage
+
+### Setup
+```
+val p1 = Player()
+val p2 = Player()
+val p3 = Player()
+val p4 = Player()
+val game = Estimation(p1, p2, p3, p4)
+```
+
+### First Round Bidding
+```
+p1.bid(2)
+p2.bid(4)
+p3.pass()
+p4.pass()
+p1.pass()
+```
+
+### Winner Declares Trump
+```
+p2.declareTrump(Suit.DIAMONDS)
+```
+
+### Second Round Bidding
+```
+p3.bid(4)
+p4.bid(3)
+p1.bid(2)
+```
+
+### Trick Taking
+```
+// assuming the following players have the cards they are playing
+// the cards a player is dealt is accessible via player.getCardsInHand()
+
+p2.playCard(Rank.FOUR of Suit.CLUBS)
+p3.playCard(Rank.SEVEN of Suit.CLUBS)
+p4.playCard(Rank.TWO of Suit.DIAMONDS)
+p1.playCard(Rank.KING of Suit.CLUBS)
+
+// p4 wins with the trump suit so they start the next round
+
+p4.playCard(Rank.FIVE of Suit.HEARTS)
+// ...
+
+// after 13 rounds like this the game ends and players can start bidding again
+```

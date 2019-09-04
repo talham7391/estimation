@@ -403,7 +403,47 @@ class TestEstimation {
         }
     }
 
-    @Test fun testIllegalOperations() {
+    @Test fun testIllegalOperations() = withGame { game, driver ->
+        game.getPlayerWithTurn().let {
+            assertFails { it.playCard(Rank.FOUR of Suit.SPADES) }
+            assertFails { it.declareTrump(Suit.DIAMONDS) }
+            assertFails { it.pass() }
+            it.bid(5)
+        }
 
+        game.getPlayerWithTurn().let {
+            assertFails { it.playCard(Rank.TWO of Suit.SPADES) }
+            assertFails { it.declareTrump(Suit.DIAMONDS) }
+            it.pass()
+        }
+
+        game.getPlayerWithTurn().pass()
+        game.getPlayerWithTurn().pass()
+
+        game.getPlayerWithTurn().let {
+            assertFails { it.pass() }
+            assertFails { it.bid(6) }
+            assertFails { it.playCard(Rank.ACE of Suit.SPADES) }
+            it.declareTrump(Suit.DIAMONDS)
+        }
+
+        game.getPlayerWithTurn().let {
+            assertFails { it.declareTrump(Suit.SPADES) }
+            assertFails { it.pass() }
+            assertFails { it.playCard(Rank.NINE of Suit.HEARTS) }
+            it.bid(4)
+        }
+
+        game.getPlayerWithTurn().bid(4)
+        game.getPlayerWithTurn().bid(1)
+
+        repeat(3) { driver.doTrick() }
+
+        game.getPlayerWithTurn().let {
+            assertFails { it.pass() }
+            assertFails { it.bid(4) }
+            assertFails { it.declareTrump(Suit.HEARTS) }
+            it.playCard(Rank.SEVEN of Suit.DIAMONDS)
+        }
     }
 }

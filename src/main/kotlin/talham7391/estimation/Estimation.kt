@@ -4,6 +4,7 @@
 package talham7391.estimation
 
 import talham7391.estimation.gamedata.Bid
+import talham7391.estimation.gamedata.Play
 import talham7391.estimation.gamedata.Trick
 import talham7391.estimation.gamedata.getWinner
 import talham7391.estimation.phases.DeclaringTrumpPhase
@@ -261,6 +262,10 @@ class Estimation(
         turnListeners.add(listener)
     }
 
+    fun removeTurnListener (listener: TurnListener) {
+        turnListeners.remove(listener)
+    }
+
     fun addGameListener(listener: GameListener) {
         gameListeners.add(listener)
     }
@@ -277,6 +282,8 @@ class Estimation(
     }
 
     fun getPastTricks(): List<Trick> = pastTricks
+
+    fun getCurrentTrick(): List<Play>? = trickTakingPhase?.getPlays()
 
     fun cleanup() {
         turnListeners.clear()
